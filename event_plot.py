@@ -1,9 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# -----------------------------
-# LOAD DATA
-# -----------------------------
+
 
 rows = []
 
@@ -23,9 +21,7 @@ with open("Sub01_H/abh_1.txt", "r", encoding="utf-8", errors="ignore") as f:
         except:
             continue
 
-# -----------------------------
-# CREATE DATAFRAME
-# -----------------------------
+
 
 columns = [
     "Time",

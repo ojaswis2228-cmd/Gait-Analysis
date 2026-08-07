@@ -1,9 +1,8 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# =====================================================
 # STEP 1 : LOAD DATA
-# =====================================================
+
 
 rows = []
 
@@ -26,9 +25,9 @@ with open("Sub01_H/abh_1.txt", "r", encoding="utf-8", errors="ignore") as f:
         except ValueError:
             continue
 
-# =====================================================
+# 
 # STEP 2 : CREATE DATAFRAME
-# =====================================================
+# 
 
 df = pd.DataFrame(rows)
 
@@ -53,9 +52,9 @@ df.columns = [
     "R8",
 ]
 
-# =====================================================
+# 
 # STEP 3 : BASIC INFORMATION
-# =====================================================
+# 
 
 print("=" * 60)
 print("DATASET SHAPE")
@@ -97,9 +96,8 @@ print("FIRST 50 TRIGGER POSITIONS")
 
 print(trigger_index[:50])
 
-# =====================================================
+# 
 # STEP 5 : PLOT TRIGGER
-# =====================================================
 
 plt.figure(figsize=(15,3))
 
@@ -115,9 +113,8 @@ plt.grid(True)
 
 plt.show()
 
-# =====================================================
+# 
 # STEP 6 : PLOT LEFT CHANNEL 1
-# =====================================================
 
 plt.figure(figsize=(15,5))
 
