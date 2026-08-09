@@ -11,21 +11,19 @@ The project is at the **early analysis / data-preparation stage**. The Python sc
 
 ## 2. Research aim described in the included PDF
 
-`Planning two studies from the FMG data collected.pdf` describes two intended machine-learning studies.
+
 
 1. **Study 1 - gait classification**
    - Classify walking events and conditions such as gait initiation, gait termination, step length, and transitions.
    - The document says the intended model has 7 classes.
 
-2. **Study 2 - force and pressure estimation**
-   - Estimate vertical ground-reaction force (vGRF) and centre-of-pressure (CoP) movement from the 8-channel thigh FMG data.
-   - This is intended to be studied separately for normal, long, and short steps.
+
 
 The PDF mentions approximately 360 gait cycles per walking condition, data from healthy and amputee participants, and 40 overground-walking trials. These are the study notes; the folder layout alone does not verify every planned cycle or condition.
 
 ## 3. What data is present now
 
-There are **9 subject folders** with **209 data files** (roughly **200 MB** in total):
+There are **9 subject folders**
 
 | Folder | Files | What it appears to represent |
 | --- | ---: | --- |
@@ -71,15 +69,15 @@ The scripts skip the first line as metadata and ignore malformed rows. The left/
 
 ## 4. What has been done in the code
 
-All scripts currently use the same example file: `Sub01_H/abh_1.txt`. They do not yet loop over the whole dataset or write output files.
+
 
 | Script | Current job |
 | --- | --- |
 | `main.py` | Loads the example FMG file, assigns column names, prints shape/statistics and trigger counts, and opens plots for the trigger, `L1`, and the first 3,000 samples of all left channels. |
 | `trigger_analysis.py` | Finds each continuous `Trigger == 1` block and prints its start index, end index, and length. |
-| `window_extraction.py` | Finds trigger starts and extracts 300 samples before plus 300 samples after each start: a 600-sample window. |
+
 | `feature_extraction.py` | Creates six basic features for every FMG channel in every window. |
-| `event_plot.py` | Plots the eight left FMG channels and then the eight right FMG channels around the first trigger (sample 609). |
+| 
 | `label_finder.py` | Prints the first 50 lines of one left-insole file to inspect its raw structure. It is a diagnostic tool, not a label-generation program. |
 
 ### Feature extraction in simple words
