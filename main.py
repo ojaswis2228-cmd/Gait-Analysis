@@ -1,149 +1,115 @@
-import pandas as pd
+from pathlib import Path
 import matplotlib.pyplot as plt
 
-# STEP 1 : LOAD DATA
+from src.data_loader import read_fmg_file
 
 
-rows = []
+# Project folder
+DATA_DIR = Path(".")
 
-with open("Sub01_H/abh_1.txt", "r", encoding="utf-8", errors="ignore") as f:
 
-    next(f)  # Skip metadata line
+# Select one subject
+subject = DATA_DIR / "Sub01_H"
 
-    for line in f:
 
-        parts = line.split()
+# Select FMG file
+fmg_file = subject / "abh_1.txt"
 
-        # Keep only valid rows
-        if len(parts) != 18:
-            continue
 
-        try:
-            parts = [float(x) for x in parts]
-            rows.append(parts)
+print("Reading:", fmg_file)
 
-        except ValueError:
-            continue
 
-# 
-# STEP 2 : CREATE DATAFRAME
-# 
+# Read the FMG data
+df = read_fmg_file(fmg_file)
 
-df = pd.DataFrame(rows)
 
-df.columns = [
-    "Time",
-    "Trigger",
-    "L1",
-    "L2",
-    "L3",
-    "L4",
-    "L5",
-    "L6",
-    "L7",
-    "L8",
-    "R1",
-    "R2",
-    "R3",
-    "R4",
-    "R5",
-    "R6",
-    "R7",
-    "R8",
-]
+print("\nData loaded successfully!")
 
-# 
-# STEP 3 : BASIC INFORMATION
-# 
+print("Shape:", df.shape)
 
-print("=" * 60)
-print("DATASET SHAPE")
-print(df.shape)
+print("\nColumns:")
+print(df.columns.tolist())
 
-print("=" * 60)
-print("FIRST 5 ROWS")
+print("\nFirst 5 rows:")
 print(df.head())
+print("\nUnique trigger values:")
+print(sorted(df["trigger"].unique()))
 
-print("=" * 60)
-print("DATASET INFO")
-print(df.info())
+print("\nTrigger counts:")
+print(df["trigger"].value_counts().sort_index())
 
-print("=" * 60)
-print("COLUMN STATISTICS")
 
-for i in range(len(df.columns)):
+print("\nTrigger = 1 regions:")
+
+trigger = df["trigger"].values
+
+in_event = False
+start = None
+
+for i, value in enumerate(trigger):
+
+    if value == 1 and not in_event:
+        start = i
+        in_event = True
+
+    elif value == 0 and in_event:
+        end = i - 1
+
+        print(
+            f"Start: {start}, "
+            f"End: {end}, "
+            f"Samples: {end - start + 1}"
+        )
+
+        in_event = False
+
+# Handle event if file ends while trigger is 1
+if in_event:
+    end = len(trigger) - 1
 
     print(
-        f"{df.columns[i]} : "
-        f"Min = {df.iloc[:,i].min()} | "
-        f"Max = {df.iloc[:,i].max()} | "
-        f"Unique = {df.iloc[:,i].nunique()}"
+        f"Start: {start}, "
+        f"End: {end}, "
+        f"Samples: {end - start + 1}"
     )
 
-# =====================================================
-# STEP 4 : TRIGGER ANALYSIS
-# =====================================================
 
-print("=" * 60)
-print("TRIGGER VALUE COUNT")
 
-print(df["Trigger"].value_counts())
+    import matplotlib.pyplot as plt
 
-trigger_index = df.index[df["Trigger"] == 1]
+fig, (ax1, ax2) = plt.subplots(
+    2, 1,
+    figsize=(16, 8),
+    sharex=True
+)
 
-print("=" * 60)
-print("FIRST 50 TRIGGER POSITIONS")
+# -----------------------------
+# FMG signal
+# -----------------------------
+ax1.plot(
+    df["time"],
+    df["left_ch1"]
+)
 
-print(trigger_index[:50])
+ax1.set_ylabel("FMG Amplitude")
+ax1.set_title("FMG Signal – Sub01_H / abh_1")
+ax1.grid(True)
 
-# 
-# STEP 5 : PLOT TRIGGER
 
-plt.figure(figsize=(15,3))
+# -----------------------------
+# Trigger signal
+# -----------------------------
+ax2.plot(
+    df["time"],
+    df["trigger"]
+)
 
-plt.plot(df["Trigger"])
+ax2.set_xlabel("Time (seconds)")
+ax2.set_ylabel("Trigger")
+ax2.set_title("Trigger Signal")
+ax2.set_ylim(-0.1, 1.1)
+ax2.grid(True)
 
-plt.title("Trigger Signal")
 
-plt.xlabel("Samples")
-
-plt.ylabel("Trigger")
-
-plt.grid(True)
-
-plt.show()
-
-# 
-# STEP 6 : PLOT LEFT CHANNEL 1
-
-plt.figure(figsize=(15,5))
-
-plt.plot(df["L1"])
-
-plt.title("Left FMG Channel 1")
-
-plt.xlabel("Samples")
-
-plt.ylabel("Amplitude")
-
-plt.grid(True)
-
-plt.show()
-
-# =====================================================
-# STEP 7 : PLOT ALL LEFT FMG CHANNELS
-# =====================================================
-
-plt.figure(figsize=(18,8))
-
-for col in ["L1","L2","L3","L4","L5","L6","L7","L8"]:
-
-    plt.plot(df[col][:3000], label=col)
-
-plt.legend()
-
-plt.title("Left FMG Channels (First 3000 Samples)")
-
-plt.grid(True)
-
+plt.tight_layout()
 plt.show()
