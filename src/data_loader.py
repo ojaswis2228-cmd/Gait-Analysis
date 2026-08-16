@@ -38,3 +38,36 @@ def read_fmg_file(file_path):
     df = pd.DataFrame(records, columns=columns)
 
     return df
+
+
+def read_insole_file(file_path):
+
+    records = []
+
+    with open(file_path, "r", errors="ignore") as file:
+
+        for line in file:
+
+            # Find all numeric values in the line
+            values = re.findall(
+                r"[-+]?(?:\d*\.\d+|\d+\.?\d*)",
+                line
+            )
+
+            values = [float(value) for value in values]
+
+            # Insole file has 4 values per row:
+            # time, trigger, CoP, vGRF
+            if len(values) == 4:
+                records.append(values)
+
+    columns = [
+        "time",
+        "trigger",
+        "cop",
+        "vgrf"
+    ]
+
+    df = pd.DataFrame(records, columns=columns)
+
+    return df
