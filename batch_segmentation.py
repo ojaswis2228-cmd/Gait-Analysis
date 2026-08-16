@@ -10,13 +10,11 @@ from src.data_loader import read_fmg_file, read_insole_file
 # FILES
 # ============================================================
 
-subject = Path("Sub01_H")
+subject = Path("Sub04_H") / "Sub04_H"
 
-fmg_file = subject / "abh_1.txt"
-left_file = subject / "abh_1L"
-right_file = subject / "abh_1R"
-
-
+fmg_file = subject / "ashu_21"
+left_file = subject / "ashu_21L"
+right_file = subject / "ashu_21R"
 # ============================================================
 # LOAD DATA
 # ============================================================
@@ -191,15 +189,93 @@ print("Right triggers:", len(right_regions))
 # ============================================================
 # SAFETY CHECK
 # ============================================================
+print("\nFirst 10 FMG trigger starts:")
+print([r[0] for r in fmg_regions[:10]])
 
-if not (
+print("\nFirst 10 LEFT trigger starts:")
+print([r[0] for r in left_regions[:10]])
+
+print("\nFirst 10 RIGHT trigger starts:")
+print([r[0] for r in right_regions[:10]])
+
+print("\nLast 10 FMG trigger starts:")
+print([r[0] for r in fmg_regions[-10:]])
+
+print("\nLast 10 LEFT trigger starts:")
+print([r[0] for r in left_regions[-10:]])
+
+print("\nLast 10 RIGHT trigger starts:")
+print([r[0] for r in right_regions[-10:]])
+
+print("\n================ TRIGGER GAP COMPARISON ================")
+
+fmg_starts = [r[0] for r in fmg_regions]
+left_starts = [r[0] for r in left_regions]
+right_starts = [r[0] for r in right_regions]
+
+fmg_gaps = np.diff(fmg_starts)
+left_gaps = np.diff(left_starts)
+right_gaps = np.diff(right_starts)
+
+print("\nFMG gaps:")
+print(fmg_gaps.tolist())
+
+print("\nLEFT gaps:")
+print(left_gaps.tolist())
+
+print("\nRIGHT gaps:")
+print(right_gaps.tolist())
+
+
+# ============================================================
+# ALIGN TRIGGER COUNTS
+# ============================================================
+
+if (
+    len(left_regions) == len(fmg_regions) + 2
+    and len(right_regions) == len(fmg_regions) + 2
+):
+
+    print(
+        "\nExtra final trigger pair detected in insoles."
+    )
+
+    print(
+        "Trimming last 2 insole trigger regions "
+        "to match FMG recording."
+    )
+
+    left_regions = left_regions[:len(fmg_regions)]
+    right_regions = right_regions[:len(fmg_regions)]
+
+elif (
+    len(fmg_regions) == 18
+    and len(right_regions) == 18
+    and len(left_regions) == 17
+):
+
+    print(
+        "\nFinal LEFT insole trigger appears to be missing."
+    )
+
+    print(
+        "Using only the first 16 matched trigger regions "
+        "(8 complete trials)."
+    )
+
+    usable_triggers = 16
+
+    fmg_regions = fmg_regions[:usable_triggers]
+    left_regions = left_regions[:usable_triggers]
+    right_regions = right_regions[:usable_triggers]
+elif not (
     len(fmg_regions)
     == len(left_regions)
     == len(right_regions)
 ):
 
     raise ValueError(
-        "Trigger counts do not match!"
+        "Trigger mismatch requires manual inspection!"
     )
 
 
@@ -208,7 +284,20 @@ if not (
 # ============================================================
 
 summary = []
+# ============================================================
+# CHECK FOR COMPLETE TRIGGER PAIRS
+# ============================================================
 
+if (
+    len(fmg_regions) % 2 != 0
+    or len(left_regions) % 2 != 0
+    or len(right_regions) % 2 != 0
+):
+
+    raise ValueError(
+        "Odd number of trigger regions detected. "
+        "This recording needs manual trigger/trial inspection."
+    )
 number_of_trials = (
     len(fmg_regions) // 2
 )
@@ -408,10 +497,7 @@ print(
 # SAVE SUMMARY
 # ============================================================
 
-output_file = (
-    "Sub01_H_abh1_segmentation_summary.csv"
-)
-
+output_file = "Sub04_H_ashu21_segmentation_summary.csv"
 summary_df.to_csv(
     output_file,
     index=False
